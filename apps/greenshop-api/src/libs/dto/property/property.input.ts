@@ -1,6 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsIn, IsInt, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
-import { PropertyLocation, PropertyStatus, PropertyType } from '../../enums/property.enum';
+import { PropertyCategories, PropertyStatus, PropertyType } from '../../enums/property.enum';
 import { ObjectId } from 'mongoose';
 import { availableOptions, availablePropertySorts } from '../../config';
 import { Direction } from '../../enums/common.enum';
@@ -12,8 +12,8 @@ export class PropertyInput {
 	propertyType: PropertyType;
 
 	@IsNotEmpty()
-	@Field(() => PropertyLocation)
-	propertyLocation: PropertyLocation;
+	@Field(() => PropertyCategories)
+	propertyCategories: PropertyCategories;
 
 	@IsNotEmpty()
 	@Length(3, 100)
@@ -31,19 +31,19 @@ export class PropertyInput {
 
 	@IsNotEmpty()
 	@Field(() => Number)
-	propertySquare: number;
+	propertyDiscountPrice: number;
 
-	@IsNotEmpty()
-	@IsInt()
-	@Min(1)
-	@Field(() => Int)
-	propertyBeds: number;
+	// @IsNotEmpty()
+	// @IsInt()
+	// @Min(1)
+	// @Field(() => Int)
+	// propertyBeds: number;
 
-	@IsNotEmpty()
-	@IsInt()
-	@Min(1)
-	@Field(() => Int)
-	propertyRooms: number;
+	// @IsNotEmpty()
+	// @IsInt()
+	// @Min(1)
+	// @Field(() => Int)
+	// propertyRooms: number;
 
 	@IsNotEmpty()
 	@Field(() => [String])
@@ -79,7 +79,7 @@ export class PricesRange {
 }
 
 @InputType()
-export class SquaresRange {
+export class DiscountRange {
 	@Field(() => Int)
 	start: number;
 
@@ -103,8 +103,8 @@ class PISearch {
 	memberId?: ObjectId;
 
 	@IsOptional()
-	@Field(() => [PropertyLocation], { nullable: true })
-	locationList?: PropertyLocation[];
+	@Field(() => [PropertyCategories], { nullable: true })
+	categoryList?: PropertyCategories[];
 
 	@IsOptional()
 	@Field(() => [PropertyType], { nullable: true })
@@ -132,8 +132,8 @@ class PISearch {
 	periodsRange?: PeriodsRange;
 
 	@IsOptional()
-	@Field(() => SquaresRange, { nullable: true })
-	squaresRange?: SquaresRange;
+	@Field(() => DiscountRange, { nullable: true })
+	discountRange?: DiscountRange;
 
 	@IsOptional()
 	@Field(() => String, { nullable: true })
@@ -206,8 +206,8 @@ export class ALPISearch {
 	propertyStatus?: PropertyStatus;
 
 	@IsOptional()
-	@Field(() => [PropertyLocation], { nullable: true })
-	propertyLocationList?: PropertyLocation[];
+	@Field(() => [PropertyCategories], { nullable: true })
+	propertyCategoryList?: PropertyCategories[];
 }
 
 @InputType()
