@@ -41,16 +41,6 @@ const PropertySchema = new Schema(
 			required: true,
 		},
 
-		// propertyBeds: {
-		// 	type: Number,
-		// 	required: true,
-		// },
-
-		// propertyRooms: {
-		// 	type: Number,
-		// 	required: true,
-		// },
-
 		propertyViews: {
 			type: Number,
 			default: 0,
@@ -78,16 +68,6 @@ const PropertySchema = new Schema(
 
 		propertyDesc: {
 			type: String,
-		},
-
-		propertyBarter: {
-			type: Boolean,
-			default: false,
-		},
-
-		propertyRent: {
-			type: Boolean,
-			default: false,
 		},
 
 		memberId: {
