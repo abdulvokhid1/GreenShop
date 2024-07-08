@@ -136,27 +136,14 @@ export class PropertyService {
 	}
 
 	private shapeMatchQuery(match: T, input: PropertiesInquiry): void {
-		const {
-			memberId,
-			categoryList,
-			roomsList,
-			bedsList,
-			typeList,
-			periodsRange,
-			pricesRange,
-			discountRange,
-			options,
-			text,
-		} = input.search;
+		const { memberId, categoryList, typeList, periodsRange, pricesRange, discountRange, options, text } = input.search;
 		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
 		if (categoryList && categoryList.length) match.prop = { $in: categoryList };
-		if (roomsList && roomsList.length) match.propertyRooms = { $in: roomsList };
-		if (bedsList && bedsList.length) match.propertyBeds = { $in: bedsList };
 		if (typeList && typeList.length) match.propertyType = { $in: typeList };
 
 		if (pricesRange) match.propertyPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
 		if (periodsRange) match.createdAt = { $gte: periodsRange.start, $lte: periodsRange.end };
-		if (discountRange) match.propertySquare = { $gte: discountRange.start, $lte: discountRange.end };
+		if (discountRange) match.propertyDiscountPrice = { $gte: discountRange.start, $lte: discountRange.end };
 
 		if (text) match.propertyTitle = { $regex: new RegExp(text, 'i') };
 		if (options) {
