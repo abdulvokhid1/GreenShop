@@ -179,7 +179,7 @@ export class ALPISearch {
 
 	@IsOptional()
 	@Field(() => [PropertyCategories], { nullable: true })
-	propertyCategoryList?: PropertyCategories[];
+	categoryList?: PropertyCategories[];
 }
 
 @InputType()
