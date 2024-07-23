@@ -91,6 +91,6 @@ const PropertySchema = new Schema(
 	{ timestamps: true, collection: 'properties' },
 );
 
-PropertySchema.index({ propertyType: 1, PropertyCategories: 1, propertyTitle: 1 }, { unique: true });
+PropertySchema.index({ propertyType: 1, propertyCategories: 1, propertyTitle: 1 }, { unique: true });
 
 export default PropertySchema;

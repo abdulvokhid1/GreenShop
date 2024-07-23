@@ -136,9 +136,10 @@ export class PropertyService {
 	}
 
 	private shapeMatchQuery(match: T, input: PropertiesInquiry): void {
-		const { memberId, categoryList, typeList, periodsRange, pricesRange, discountRange, options, text } = input.search;
+		const { memberId, categoryList, typeList, periodsRange, pricesRange, discountRange, text } = input.search;
+		// option deleted
 		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
-		if (categoryList && categoryList.length) match.prop = { $in: categoryList };
+		if (categoryList && categoryList.length) match.propertyCategories = { $in: categoryList };
 		if (typeList && typeList.length) match.propertyType = { $in: typeList };
 
 		if (pricesRange) match.propertyPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
@@ -146,11 +147,11 @@ export class PropertyService {
 		if (discountRange) match.propertyDiscountPrice = { $gte: discountRange.start, $lte: discountRange.end };
 
 		if (text) match.propertyTitle = { $regex: new RegExp(text, 'i') };
-		if (options) {
-			match['$or'] = options.map((ele) => {
-				return { [ele]: true };
-			});
-		}
+		// if (options) {
+		// 	match['$or'] = options.map((ele) => {
+		// 		return { [ele]: true };
+		// 	});
+		// }
 	}
 
 	public async getFavorites(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {

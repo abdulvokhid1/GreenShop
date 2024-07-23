@@ -91,11 +91,6 @@ class PISearch {
 	typeList?: PropertyType[];
 
 	@IsOptional()
-	@IsIn(availableOptions, { each: true })
-	@Field(() => [String], { nullable: true })
-	options?: string[];
-
-	@IsOptional()
 	@Field(() => PricesRange, { nullable: true })
 	pricesRange?: PricesRange;
 
