@@ -11,6 +11,7 @@ import { Comment, Comments } from '../../libs/dto/comment/comment';
 import { CommentUpdate } from '../../libs/dto/comment/comment.update';
 import { T } from '../../libs/types/common';
 import { lookupMember } from '../../libs/config';
+import { Member } from '../../libs/dto/member/member';
 
 @Injectable()
 export class CommentService {
@@ -110,6 +111,10 @@ export class CommentService {
 	public async removeCommentByAdmin(input: ObjectId): Promise<Comment> {
 		const result = await this.commentModel.findByIdAndDelete(input).exec();
 		if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+		return result;
+	}
+	public async getNotification(memberId: ObjectId): Promise<Comment[]> {
+		const result = await this.commentModel.find({ memberId });
 		return result;
 	}
 }

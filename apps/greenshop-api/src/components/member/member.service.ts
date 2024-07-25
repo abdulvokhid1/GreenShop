@@ -15,15 +15,21 @@ import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeService } from '../like/like.service';
 import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
 import { lookupAuthMemberLiked } from '../../libs/config';
+import { Notification } from '../../libs/dto/notification/notification';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationGroup, NotificationStatus, NotificationType } from '../../libs/enums/notification.enum';
 
 @Injectable()
 export class MemberService {
 	constructor(
 		@InjectModel('Member') private readonly memberModel: Model<Member>,
 		@InjectModel('Follow') private readonly followModel: Model<Follower | Following>,
+		// @InjectModel('Notification') private readonly notificationModel: Model<Notification>,
+
 		private authService: AuthService,
 		private viewService: ViewService,
 		private likeService: LikeService,
+		private notificationService: NotificationService,
 	) {}
 	public async signup(input: MemberInput): Promise<Member> {
 		// TO DO password Hash
@@ -147,9 +153,17 @@ export class MemberService {
 		// LIKE TOGGLE via like modules
 		const modifier: number = await this.likeService.toggleLike(input);
 		const result = await this.memberStatsEditor({ _id: likeRefId, targetKey: 'memberLikes', modifier: modifier });
-
+		console.log('result', result);
 		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
-
+		await this.notificationService.createNotification({
+			notificationType: NotificationType.LIKE,
+			notificationStatus: NotificationStatus.WAIT,
+			notificationGroup: NotificationGroup.MEMBER,
+			notificationTitle: `like member`,
+			notificationDesc: `${memberId} like your profile`,
+			authorId: memberId,
+			receiverId: likeRefId,
+		});
 		return result;
 	}
 

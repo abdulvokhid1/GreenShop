@@ -9,10 +9,15 @@ import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
 import { Properties } from '../../libs/dto/property/property';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { lookupFavorite } from '../../libs/config';
+import { NotificationModule } from '../notification/notification.module';
+import { NotificationGroup, NotificationStatus, NotificationType } from '../../libs/enums/notification.enum';
 
 @Injectable()
 export class LikeService {
-	constructor(@InjectModel('Like') private readonly likeModel: Model<Like>) {}
+	constructor(
+		@InjectModel('Like') private readonly likeModel: Model<Like>,
+		// @InjectModel('Notification') private readonly notificationModel: Model<Notification>,
+	) {}
 
 	public async toggleLike(input: LikeInput): Promise<number> {
 		const search: T = {
@@ -29,6 +34,18 @@ export class LikeService {
 		} else {
 			try {
 				await this.likeModel.create(input);
+
+				// const notification = new this.notificationModel({
+				// 	notificationType: NotificationType.LIKE,
+				// 	notificationStatus: NotificationStatus.WAIT,
+				// 	notificationGroup: NotificationGroup.MEMBER,
+				// 	notificationTitle: 'new like',
+				// 	notificationDesc: `${input.memberId} liked you `,
+				// 	authorId: input.memberId,
+				// 	receiverId: input.likeRefId,
+				// });
+
+				// await notification.save();
 			} catch (err) {
 				console.log('Error, Service.model', err.message);
 				throw new BadRequestException(Message.CREATE_FAILED);

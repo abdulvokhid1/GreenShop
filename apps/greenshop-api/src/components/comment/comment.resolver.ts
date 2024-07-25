@@ -12,6 +12,7 @@ import { WithoutGuard } from '../auth/guards/without.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
+import { Member } from '../../libs/dto/member/member';
 
 @Resolver()
 export class CommentResolver {
@@ -56,5 +57,11 @@ export class CommentResolver {
 		console.log('Mutation: removeCommentByAdmin');
 		const commentId = shapeIntoMongoObjectId(input);
 		return await this.commentService.removeCommentByAdmin(commentId);
+	}
+
+	@UseGuards(WithoutGuard)
+	@Query(() => Member)
+	public async getNotification(@AuthMember('_id') memberId: ObjectId): Promise<Comment[]> {
+		return await this.commentService.getNotification(memberId);
 	}
 }
