@@ -15,6 +15,7 @@ import { WithoutGuard } from '../auth/guards/without.guard';
 import { GraphQLUpload, FileUpload } from 'graphql-upload';
 import { createWriteStream } from 'fs';
 import { Message } from '../../libs/enums/common.enum';
+import { Notification, Notifications } from '../../libs/dto/notification/notification';
 
 @Resolver()
 export class MemberResolver {
@@ -81,6 +82,15 @@ export class MemberResolver {
 		const likeRefId = shapeIntoMongoObjectId(input);
 		return await this.memberService.likeTargetMember(memberId, likeRefId);
 	}
+	// @UseGuards(AuthGuard)
+	// @Query(() => String)
+	// public async getLikeNotification(
+	// 	@Args('memberId') input: string,
+	// 	@AuthMember('_id') memberId: ObjectId,
+	// ): Promise<Notification> {
+	// 	console.log('Query:', 'getLikeNotification');
+	// 	return await this.memberService.getLikeNotification(memberId);
+	// }
 
 	/* ADMIN */
 
