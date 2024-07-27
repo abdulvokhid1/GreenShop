@@ -12,6 +12,8 @@ import { CommentUpdate } from '../../libs/dto/comment/comment.update';
 import { T } from '../../libs/types/common';
 import { lookupMember } from '../../libs/config';
 import { Member } from '../../libs/dto/member/member';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationGroup, NotificationStatus, NotificationType } from '../../libs/enums/notification.enum';
 
 @Injectable()
 export class CommentService {
@@ -20,6 +22,7 @@ export class CommentService {
 		private readonly memberService: MemberService,
 		private readonly propertyService: PropertyService,
 		private readonly boardArticleService: BoardArticleService,
+		private notificationService: NotificationService,
 	) {}
 
 	public async createComment(memberId: ObjectId, input: CommentInput): Promise<Comment> {
@@ -53,6 +56,46 @@ export class CommentService {
 					_id: input.commentRefId,
 					targetKey: 'memberComments',
 					modifier: 1,
+				});
+				break;
+		}
+		const member = await this.memberService.getMember(null, memberId);
+		const plant = await this.propertyService.getProperty(null, input.commentRefId);
+		const article = await this.boardArticleService.getBoardArticle(null, input.commentRefId);
+		const membercomment = await this.memberService.getMember(null, input.commentRefId);
+
+		switch (input.commentGroup) {
+			case CommentGroup.PROPERTY:
+				await this.notificationService.createNotification({
+					notificationType: NotificationType.COMMENT,
+					notificationStatus: NotificationStatus.WAIT,
+					notificationGroup: NotificationGroup.PROPERTY,
+					notificationTitle: `comment to property`,
+					notificationDesc: `${member.memberNick} commented your plant " ${plant.propertyTitle}"   as " ${input.commentContent} "`,
+					authorId: input.memberId,
+					receiverId: plant.memberData._id,
+				});
+				break;
+			case CommentGroup.ARTICLE:
+				await this.notificationService.createNotification({
+					notificationType: NotificationType.COMMENT,
+					notificationStatus: NotificationStatus.WAIT,
+					notificationGroup: NotificationGroup.ARTICLE,
+					notificationTitle: `comment to article`,
+					notificationDesc: `${member.memberNick} commented your article as " ${input.commentContent} " `,
+					authorId: input.memberId,
+					receiverId: article.memberData._id,
+				});
+				break;
+			case CommentGroup.MEMBER:
+				await this.notificationService.createNotification({
+					notificationType: NotificationType.COMMENT,
+					notificationStatus: NotificationStatus.WAIT,
+					notificationGroup: NotificationGroup.MEMBER,
+					notificationTitle: `comment to member`,
+					notificationDesc: `${member.memberNick} commented your profile as " ${input.commentContent} "`,
+					authorId: input.memberId,
+					receiverId: membercomment._id,
 				});
 				break;
 		}

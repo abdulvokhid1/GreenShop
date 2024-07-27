@@ -12,12 +12,15 @@ import {
 } from '../../libs/config';
 import { FollowInquiry } from '../../libs/dto/follow/follow.input';
 import { T } from '../../libs/types/common';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationGroup, NotificationStatus, NotificationType } from '../../libs/enums/notification.enum';
 
 @Injectable()
 export class FollowService {
 	constructor(
 		@InjectModel('Follow') private readonly followModel: Model<Follower | Following>,
 		private readonly memberService: MemberService,
+		private readonly notificationService: NotificationService,
 	) {}
 
 	public async subscribe(followerId: ObjectId, followingId: ObjectId): Promise<Follower> {
@@ -26,12 +29,24 @@ export class FollowService {
 		}
 
 		const targetMember = await this.memberService.getMember(null, followingId);
+		const member = await this.memberService.getMember(null, followerId);
+
 		if (!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
 		const result = await this.registerSubscription(followerId, followingId);
 
 		await this.memberService.memberStatsEditor({ _id: followerId, targetKey: 'memberFollowings', modifier: 1 });
 		await this.memberService.memberStatsEditor({ _id: followingId, targetKey: 'memberFollowers', modifier: 1 });
+
+		await this.notificationService.createNotification({
+			notificationType: NotificationType.FOLLOW,
+			notificationStatus: NotificationStatus.WAIT,
+			notificationGroup: NotificationGroup.MEMBER,
+			notificationTitle: 'New Follow',
+			notificationDesc: `${member.memberNick} followed you`,
+			authorId: followerId,
+			receiverId: followingId,
+		});
 
 		return result;
 	}
@@ -50,6 +65,9 @@ export class FollowService {
 
 	public async unsubscribe(followerId: ObjectId, followingId: ObjectId): Promise<Follower> {
 		const targetMember = await this.memberService.getMember(null, followingId);
+
+		const member = await this.memberService.getMember(null, followerId);
+
 		if (!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
 		const result = await this.followModel
@@ -63,8 +81,31 @@ export class FollowService {
 		await this.memberService.memberStatsEditor({ _id: followerId, targetKey: 'memberFollowings', modifier: -1 });
 		await this.memberService.memberStatsEditor({ _id: followingId, targetKey: 'memberFollowers', modifier: -1 });
 
+		await this.notificationService.createNotification({
+			notificationType: NotificationType.FOLLOW,
+			notificationStatus: NotificationStatus.WAIT,
+			notificationGroup: NotificationGroup.MEMBER,
+			notificationTitle: ' Unfollow',
+			notificationDesc: `${member.memberNick} unfollowed you`,
+			authorId: followerId,
+			receiverId: followingId,
+		});
+
 		return result;
 	}
+
+	// private getNotificationGroup(likeGroup: LikeGroup): NotificationGroup {
+	// 	switch (likeGroup) {
+	// 		case LikeGroup.MEMBER:
+	// 			return NotificationGroup.MEMBER;
+	// 		case LikeGroup.ARTICLE:
+	// 			return NotificationGroup.ARTICLE;
+	// 		case LikeGroup.PROPERTY:
+	// 			return NotificationGroup.PROPERTY;
+	// 		default:
+	// 			throw new BadRequestException('Invalid like group');
+	// 	}
+	// }
 
 	public async getMemberFollowings(memberId: ObjectId, input: FollowInquiry): Promise<Followings> {
 		const { page, limit, search } = input;

@@ -18,6 +18,7 @@ import { lookupAuthMemberLiked } from '../../libs/config';
 import { Notification } from '../../libs/dto/notification/notification';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationGroup, NotificationStatus, NotificationType } from '../../libs/enums/notification.enum';
+import { error } from 'console';
 
 @Injectable()
 export class MemberService {
@@ -142,6 +143,9 @@ export class MemberService {
 	public async likeTargetMember(memberId: ObjectId, likeRefId: ObjectId): Promise<Member> {
 		const target: Member = await this.memberModel.findOne({ _id: likeRefId, memberStatus: MemberStatus.ACTIVE }).exec();
 
+		if (target._id === likeRefId) {
+			throw new BadRequestException('you cannot like yourself');
+		}
 		if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
 		const input: LikeInput = {
@@ -155,15 +159,17 @@ export class MemberService {
 		const result = await this.memberStatsEditor({ _id: likeRefId, targetKey: 'memberLikes', modifier: modifier });
 		console.log('result', result);
 		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
-		await this.notificationService.createNotification({
-			notificationType: NotificationType.LIKE,
-			notificationStatus: NotificationStatus.WAIT,
-			notificationGroup: NotificationGroup.MEMBER,
-			notificationTitle: `like member`,
-			notificationDesc: `${memberId} like your profile`,
-			authorId: memberId,
-			receiverId: likeRefId,
-		});
+
+		// const member = await this.getMember(null, memberId);
+		// await this.notificationService.createNotification({
+		// 	notificationType: NotificationType.LIKE,
+		// 	notificationStatus: NotificationStatus.WAIT,
+		// 	notificationGroup: NotificationGroup.MEMBER,
+		// 	notificationTitle: `like member`,
+		// 	notificationDesc: `${member.memberNick} liked your profile`,
+		// 	authorId: memberId,
+		// 	receiverId: likeRefId,
+		// });
 		return result;
 	}
 

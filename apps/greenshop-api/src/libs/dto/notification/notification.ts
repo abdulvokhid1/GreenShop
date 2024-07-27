@@ -5,7 +5,7 @@ import { NotificationGroup, NotificationStatus, NotificationType } from '../../e
 
 @ObjectType()
 export class Notification {
-	@Field(() => String)
+	@Field(() => String, { nullable: true })
 	_id: ObjectId;
 
 	@Field(() => NotificationType)

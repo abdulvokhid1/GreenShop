@@ -105,6 +105,14 @@ export const lookupMember = {
 		as: 'memberData',
 	},
 };
+export const lookupMemberLike = {
+	$lookup: {
+		from: 'members',
+		localField: 'memberId',
+		foreignField: 'authorId',
+		as: 'memberData',
+	},
+};
 
 export const lookupFollowingData = {
 	$lookup: {

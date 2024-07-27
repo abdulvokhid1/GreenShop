@@ -1,20 +1,25 @@
-import { Resolver, Query, Args } from '@nestjs/graphql';
+import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { NotificationService } from './notification.service';
-import NotificationSchema from '../../schemas/Notification.model';
+// import NotificationSchema from '../../schemas/Notification.model';
 import { Notification, Notifications } from '../../libs/dto/notification/notification';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { UseGuards } from '@nestjs/common';
 import { ObjectId } from 'mongoose';
-@Resolver(() => NotificationSchema)
+import { shapeIntoMongoObjectId } from '../../libs/config';
+import { WithoutGuard } from '../auth/guards/without.guard';
+import { NotificationInput } from '../../libs/dto/notification/notification.input';
+@Resolver()
 export class NotificationResolver {
 	constructor(private readonly notificationService: NotificationService) {}
 
-	@UseGuards(AuthMember)
-	@Query((returns) => [Notification])
-	public async getNotifications() // @Args('auhtorId') input: string,
-	// @AuthMember('_id') memberId: ObjectId,
-	: Promise<Notification[]> {
-		return this.notificationService.getNotifications();
+	@Mutation(() => Notification)
+	async createNotification(@Args('input') input: NotificationInput): Promise<Notification> {
+		return await this.notificationService.createNotification(input);
+	}
+
+	@Query(() => [Notification])
+	async getNotifications(): Promise<Notification[]> {
+		return await this.notificationService.getNotifications();
 	}
 }
