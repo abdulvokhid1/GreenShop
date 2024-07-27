@@ -1,8 +1,10 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { LikeService } from './like.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import LikeSchema from '../../schemas/Like.model';
 import NotificationSchema from '../../schemas/Notification.model';
+import { NotificationModule } from '../notification/notification.module';
+import { MemberModule } from '../member/member.module';
 
 @Module({
 	imports: [
@@ -12,6 +14,8 @@ import NotificationSchema from '../../schemas/Notification.model';
 				schema: LikeSchema,
 			},
 		]),
+		NotificationModule,
+		forwardRef(() => MemberModule),
 		// MongooseModule.forFeature([
 		// 	{
 		// 		name: 'Notification',

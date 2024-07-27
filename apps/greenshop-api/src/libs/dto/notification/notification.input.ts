@@ -5,7 +5,7 @@ import { NotificationGroup, NotificationStatus, NotificationType } from '../../e
 import { IsNotEmpty, isNotEmpty, IsOptional } from 'class-validator';
 
 @InputType()
-export class notificationInput {
+export class NotificationInput {
 	@IsNotEmpty()
 	@Field(() => NotificationType)
 	notificationType: NotificationType;
