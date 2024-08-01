@@ -16,12 +16,6 @@ import { MemberModule } from '../member/member.module';
 		]),
 		NotificationModule,
 		forwardRef(() => MemberModule),
-		// MongooseModule.forFeature([
-		// 	{
-		// 		name: 'Notification',
-		// 		schema: NotificationSchema,
-		// 	},
-		// ]),
 	],
 	providers: [LikeService],
 	exports: [LikeService],

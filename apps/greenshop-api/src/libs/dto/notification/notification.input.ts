@@ -1,46 +1,34 @@
-import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
+// notification.input.ts
+import { InputType, Field } from '@nestjs/graphql';
 import { ObjectId } from 'mongoose';
-import { Member, TotalCounter } from '../member/member';
 import { NotificationGroup, NotificationStatus, NotificationType } from '../../enums/notification.enum';
-import { IsNotEmpty, isNotEmpty, IsOptional } from 'class-validator';
 
 @InputType()
 export class NotificationInput {
-	@IsNotEmpty()
 	@Field(() => NotificationType)
 	notificationType: NotificationType;
 
-	@IsNotEmpty()
 	@Field(() => NotificationStatus, { defaultValue: NotificationStatus.WAIT })
-	notificationStatus: NotificationStatus;
+	notificationStatus?: NotificationStatus;
 
-	@IsNotEmpty()
 	@Field(() => NotificationGroup)
 	notificationGroup: NotificationGroup;
 
-	@IsNotEmpty()
 	@Field(() => String)
 	notificationTitle: string;
 
-	@IsOptional()
-	@Field(() => String)
-	notificationDesc: string;
+	@Field(() => String, { nullable: true })
+	notificationDesc?: string;
 
-	@IsNotEmpty()
 	@Field(() => String)
 	authorId: ObjectId;
 
-	@IsNotEmpty()
 	@Field(() => String)
 	receiverId: ObjectId;
 
-	@IsNotEmpty()
 	@Field(() => String, { nullable: true })
 	propertyId?: ObjectId;
 
-	@IsNotEmpty()
 	@Field(() => String, { nullable: true })
 	articleId?: ObjectId;
-
-	/** from aggregation **/
 }
