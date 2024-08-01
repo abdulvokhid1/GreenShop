@@ -7,13 +7,11 @@ import { BoardArticleService } from '../board-article/board-article.service';
 import { CommentInput, CommentsInquiry } from '../../libs/dto/comment/comment.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { CommentGroup, CommentStatus } from '../../libs/enums/comment.enum';
-import { Comment, Comments } from '../../libs/dto/comment/comment';
 import { CommentUpdate } from '../../libs/dto/comment/comment.update';
-import { T } from '../../libs/types/common';
 import { lookupMember } from '../../libs/config';
-import { Member } from '../../libs/dto/member/member';
+import { T } from '../../libs/types/common';
+import { Comments, Comment } from '../../libs/dto/comment/comment';
 import { NotificationService } from '../notification/notification.service';
-import { NotificationGroup, NotificationStatus, NotificationType } from '../../libs/enums/notification.enum';
 
 @Injectable()
 export class CommentService {
@@ -21,8 +19,8 @@ export class CommentService {
 		@InjectModel('Comment') private readonly commentModel: Model<Comment>,
 		private readonly memberService: MemberService,
 		private readonly propertyService: PropertyService,
-		private readonly boardArticleService: BoardArticleService,
-		private notificationService: NotificationService,
+		private readonly boardArticleServise: BoardArticleService,
+		private readonly notificationService: NotificationService,
 	) {}
 
 	public async createComment(memberId: ObjectId, input: CommentInput): Promise<Comment> {
@@ -32,7 +30,7 @@ export class CommentService {
 		try {
 			result = await this.commentModel.create(input);
 		} catch (err) {
-			console.log('Error, Service.model:', err.message);
+			console.log('Error. Service.model', err.message);
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
 
@@ -45,7 +43,7 @@ export class CommentService {
 				});
 				break;
 			case CommentGroup.ARTICLE:
-				await this.boardArticleService.boardArticleStatsEditor({
+				await this.boardArticleServise.boardArticleStatsEditor({
 					_id: input.commentRefId,
 					targetKey: 'articleComments',
 					modifier: 1,
@@ -59,54 +57,21 @@ export class CommentService {
 				});
 				break;
 		}
-		const member = await this.memberService.getMember(null, memberId);
-		const plant = await this.propertyService.getProperty(null, input.commentRefId);
-		const article = await this.boardArticleService.getBoardArticle(null, input.commentRefId);
-		const membercomment = await this.memberService.getMember(null, input.commentRefId);
-
-		switch (input.commentGroup) {
-			case CommentGroup.PROPERTY:
-				await this.notificationService.createNotification({
-					notificationType: NotificationType.COMMENT,
-					notificationStatus: NotificationStatus.WAIT,
-					notificationGroup: NotificationGroup.PROPERTY,
-					notificationTitle: `comment to property`,
-					notificationDesc: `${member.memberNick} commented your plant " ${plant.propertyTitle}"   as " ${input.commentContent} "`,
-					authorId: input.memberId,
-					receiverId: plant.memberData._id,
-				});
-				break;
-			case CommentGroup.ARTICLE:
-				await this.notificationService.createNotification({
-					notificationType: NotificationType.COMMENT,
-					notificationStatus: NotificationStatus.WAIT,
-					notificationGroup: NotificationGroup.ARTICLE,
-					notificationTitle: `comment to article`,
-					notificationDesc: `${member.memberNick} commented your article as " ${input.commentContent} " `,
-					authorId: input.memberId,
-					receiverId: article.memberData._id,
-				});
-				break;
-			case CommentGroup.MEMBER:
-				await this.notificationService.createNotification({
-					notificationType: NotificationType.COMMENT,
-					notificationStatus: NotificationStatus.WAIT,
-					notificationGroup: NotificationGroup.MEMBER,
-					notificationTitle: `comment to member`,
-					notificationDesc: `${member.memberNick} commented your profile as " ${input.commentContent} "`,
-					authorId: input.memberId,
-					receiverId: membercomment._id,
-				});
-				break;
-		}
 
 		if (!result) throw new InternalServerErrorException(Message.CREATE_FAILED);
+		await this.notificationService.createNotificationForComment(
+			input.commentGroup,
+			input.commentRefId,
+			memberId,
+			input.commentContent,
+		);
 
 		return result;
 	}
 
 	public async updateComment(memberId: ObjectId, input: CommentUpdate): Promise<Comment> {
 		const { _id } = input;
+
 		const result = await this.commentModel
 			.findOneAndUpdate(
 				{
@@ -115,9 +80,12 @@ export class CommentService {
 					commentStatus: CommentStatus.ACTIVE,
 				},
 				input,
-				{ new: true },
+				{
+					new: true,
+				},
 			)
 			.exec();
+
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
 		return result;
@@ -147,17 +115,12 @@ export class CommentService {
 			])
 			.exec();
 		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
-
 		return result[0];
 	}
 
 	public async removeCommentByAdmin(input: ObjectId): Promise<Comment> {
 		const result = await this.commentModel.findByIdAndDelete(input).exec();
 		if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
-		return result;
-	}
-	public async getNotification(memberId: ObjectId): Promise<Comment[]> {
-		const result = await this.commentModel.find({ memberId });
 		return result;
 	}
 }

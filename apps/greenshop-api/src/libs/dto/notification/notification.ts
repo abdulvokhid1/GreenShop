@@ -1,11 +1,14 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+// notification.model.ts
+import { ObjectType, Field } from '@nestjs/graphql';
 import { ObjectId } from 'mongoose';
-import { Member, TotalCounter } from '../member/member';
 import { NotificationGroup, NotificationStatus, NotificationType } from '../../enums/notification.enum';
+import { Member } from '../member/member';
+
+// Member 모델이 정의되어 있어야 합니다
 
 @ObjectType()
 export class Notification {
-	@Field(() => String, { nullable: true })
+	@Field(() => String)
 	_id: ObjectId;
 
 	@Field(() => NotificationType)
@@ -20,35 +23,30 @@ export class Notification {
 	@Field(() => String)
 	notificationTitle: string;
 
-	@Field(() => String)
-	notificationDesc: ObjectId;
+	@Field(() => String, { nullable: true })
+	notificationDesc?: string;
 
 	@Field(() => String)
-	authorId: string;
+	authorId: ObjectId;
 
 	@Field(() => String)
 	receiverId: ObjectId;
 
 	@Field(() => String, { nullable: true })
-	propertyId: ObjectId;
+	propertyId?: ObjectId;
 
 	@Field(() => String, { nullable: true })
-	articleId: ObjectId;
+	articleId?: ObjectId;
 
 	@Field(() => Date)
 	createdAt: Date;
 
 	/** from aggregation **/
-
 	@Field(() => Member, { nullable: true })
 	memberData?: Member;
 }
-
 @ObjectType()
 export class Notifications {
 	@Field(() => [Notification])
 	list: Notification[];
-
-	// @Field(() => [TotalCounter], { nullable: true })
-	// metaCounter: TotalCounter[];
 }
