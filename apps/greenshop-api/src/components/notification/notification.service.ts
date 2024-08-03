@@ -138,13 +138,13 @@ export class NotificationService {
 			case 'PROPERTY':
 				const property = await this.propertyModel.findById(commentId);
 				receiverId = property.memberId;
-				notificationDesc = `${authorName} commented your ${commentType} as "${commentContent}" `;
+				notificationDesc = `${authorName} commented your ${property.propertyTitle}  as "${commentContent}" `;
 				propertyId = property._id;
 				break;
 			case 'ARTICLE':
 				const article = await this.boardArticle.findById(commentId);
 				receiverId = article.memberId;
-				notificationDesc = `${authorName} commented your ${commentType} as "${commentContent}" `;
+				notificationDesc = `${authorName} commented your ${article.articleTitle} as "${commentContent}" `;
 
 				break;
 			case 'MEMBER':
