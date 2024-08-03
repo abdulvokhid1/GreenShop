@@ -1,5 +1,3 @@
-version: '3.3'
-
 services:
   greenshop-api:
     container_name: greenshop-api
